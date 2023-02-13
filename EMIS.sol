@@ -217,14 +217,16 @@ contract EMIS{
         records[username].owner = owner;
     }
 
+
     /**
      * @dev Sets the Identity Identifier's contract address for the username.
      * @param username The specified username.
      * @param identityAddress The address of the identity identifier's contranct address.
      */
-    function setIdentityIdentifierAddress(string calldata username,address identityAddress)public {
-        records[username].identity_identifier_addr = identityAddress;
-    }
+    // function setIdentityIdentifierAddress(string calldata username,address identityAddress)public {
+    //     records[username].identity_identifier_addr = identityAddress;
+    // }
+
 
     /**
      * @dev Transfers ownership of a username to a new address. 

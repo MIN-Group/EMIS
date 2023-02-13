@@ -10,10 +10,40 @@ contract IdentityIdentifier{
         string signature;
     }
 
+    address owner;
+    address emis;
     mapping(string => UserInfo) identityRecords;
     mapping(string => bool) revokedUser;
     mapping(string => uint) remainTime;
     string private constant IDENTITY_IDENTIFIER = "type0";
+
+    constructor(){
+        owner = msg.sender;
+    }
+
+    /**
+     * @dev Permits modifications only owner.
+     */
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    /**
+     * @dev Sets EMIS contract address.
+     * @param emisAddr Emis contract address.
+     */
+    function setEMISAddr(address emisAddr) public onlyOwner{
+        emis = emisAddr;
+    }
+
+    /**
+     * @dev Permits modifications only emis contract.
+     */
+    modifier OnlyEMIS(){
+        require(msg.sender == emis);
+        _;
+    }
 
     /**
      * @dev Query whether the username's identity identifier is in expiry date.
@@ -75,7 +105,7 @@ contract IdentityIdentifier{
         string calldata username,
         address uOwner,
         uint256 expiryTime
-    ) public{
+    ) public OnlyEMIS{
         identityRecords[username].identityIdentifier = toString(uOwner);
         identityRecords[username].registerTime = block.timestamp;
         // If the identity identifier is registered for the first time:
@@ -100,7 +130,7 @@ contract IdentityIdentifier{
      * @param username The specified username.
      * @param _identityIdentifier The address of the identity identifier's contranct address.
      */
-    function setIdentityIdentifier(string calldata username,string calldata _identityIdentifier) public active(username) {
+    function setIdentityIdentifier(string calldata username,string calldata _identityIdentifier) public OnlyEMIS active(username) {
         identityRecords[username].identityIdentifier = _identityIdentifier;
     }
     /**
@@ -109,7 +139,7 @@ contract IdentityIdentifier{
      * @param username The specified username.
      * @param _aboutMe The information of the username, company, organization or person.
      */
-    function setAboutMe(string calldata username,string calldata _aboutMe) public active(username) {
+    function setAboutMe(string calldata username,string calldata _aboutMe) public OnlyEMIS active(username) {
         identityRecords[username].aboutMe = _aboutMe;
     }
     /**
@@ -118,7 +148,7 @@ contract IdentityIdentifier{
      * @param username The specified username.
      * @param _digest The information of the digest.
      */
-    function setDigest(string calldata username,string calldata _digest) public active(username) {
+    function setDigest(string calldata username,string calldata _digest) public OnlyEMIS active(username) {
         identityRecords[username].digest = _digest;
     }
 
@@ -127,7 +157,7 @@ contract IdentityIdentifier{
      * @param username The specified username.
      * @param payTime The time that user wants to extend.
      */
-    function renewal(string calldata username,uint256 payTime) public active(username){
+    function renewal(string calldata username,uint256 payTime) public OnlyEMIS notRevoked(username){
         // If the identity identifier is registered for the first time:
         // ttl: current block.timestamp + expiryTime
         if(identityRecords[username].ttl == 0){
@@ -165,7 +195,7 @@ contract IdentityIdentifier{
             stop billing to keep the effective usage time.
      * @param username The specified username.
      */
-    function revoke(string calldata username) public notRevoked(username){
+    function revoke(string calldata username) public OnlyEMIS notRevoked(username){
         revokedUser[username] = true;
         remainTime[username] = identityRecords[username].ttl - block.timestamp;
         identityRecords[username].ttl = 0;
@@ -176,7 +206,7 @@ contract IdentityIdentifier{
             is already revoked by revoke function and start billing again.
      * @param username The specified username.
      */
-    function restart(string calldata username) public revoked(username){
+    function restart(string calldata username) public OnlyEMIS revoked(username){
         revokedUser[username] = false;
         identityRecords[username].ttl = block.timestamp + remainTime[username];
         remainTime[username] = 0;
@@ -186,7 +216,7 @@ contract IdentityIdentifier{
      * @dev Sets the ttl of username's identity identifier to 0, it equals to delete the identifier.
      * @param username The specified username.
      */
-    function deleteIdentity(string calldata username) public notRevoked(username){
+    function deleteIdentity(string calldata username) public OnlyEMIS notRevoked(username){
         identityRecords[username].ttl =0;
     }
 
