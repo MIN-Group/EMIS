@@ -127,19 +127,19 @@ contract EMIS{
      * @param commitment The hash of the name which user wants to registry, 
                          address of the owner ans so on.
      */
+    //it will work better if some configurations are combined with other modules
     function _consumeCommitment(
         string memory name,
         // uint256 duration,
         bytes32 commitment
     )internal{
-        // // 过期时间设置与验证,need to wait minCommitmentAge，需结合其他模块
         // if(commitments[commitment] + minCommitmentAge > block.timestamp){
         //     revert ("commitment too new");
         // }
         // if(commitments[commitment] + maxCommitmentAge <= block.timestamp){
         //     revert ("commitment too old");
         // }
-        //名称规则设置与验证
+        // set some rules
         if(!available(name)){
             revert ("name is not validate");
         }
