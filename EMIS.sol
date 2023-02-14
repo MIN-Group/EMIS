@@ -22,15 +22,19 @@ contract EMIS{
     string private constant IPv4_IDENTIFIER = "type5";
     string private constant DOMAIN_NAME_IDENTIFIER = "type6";
 
+    uint256 private constant DEFAULT_METAVERSE = 0;
+
     IdentityIdentifier immutable identity;
     uint public immutable identityPrice;
     uint256 public immutable minCommitmentAge = 60 seconds;
     uint256 public immutable maxCommitmentAge = 24 hours;
+    
 
     mapping(bytes32 => uint256) public commitments;
     mapping(string => User) records;
     mapping(address =>mapping(address => bool)) operators;
     mapping(string => bool) sensitiveWords;
+    mapping(string => uint) attribute;
 
 
     constructor(IdentityIdentifier _identityIdentifier,uint256 _identityPrice){
@@ -59,11 +63,13 @@ contract EMIS{
         return sensitiveWords[word];
     }
 
+
     /**
      * @dev Make a commitment before registry.
      * @param name The username which user want to registry.
      * @param owner The address of the username's owner.
      */
+    //Some configurations depend on other modules such as the front end
     function makeCommitment(
         string memory name,
         address owner
@@ -80,6 +86,7 @@ contract EMIS{
             )
         );
     }
+
 
     /**
      * @dev Commit the commitment to the commitments table.
@@ -152,7 +159,7 @@ contract EMIS{
         return !sensitiveWords[name];
     }
 
-    // 工具函数
+
     /**
      * @dev Permits modifications only by the person/address 
             that authorised in isAuthorised function.
@@ -207,7 +214,6 @@ contract EMIS{
     }
 
 
-// 用户名相关
     /**
      * @dev Sets the username's owner in records.
      * @param username The specified username.
@@ -215,6 +221,7 @@ contract EMIS{
      */
     function registerUsername(string calldata username, address owner) internal{
         records[username].owner = owner;
+        attribute[username] = DEFAULT_METAVERSE;
     }
 
 
@@ -251,8 +258,16 @@ contract EMIS{
         return records[username].owner;
     }
 
+    /**
+     * @dev Sets the permissions for username in the sub-metaverse.
+     * @param username The specified username.
+     * @param subMetaverse The flag number of the subMetaverse.
+     */
+    function setSubMetaverse(string calldata username, uint256 subMetaverse)public {
+        attribute[username] = subMetaverse;
+    }
 
-// 身份标识相关设置
+
     /**
      * @dev Registry an identity identifier for a specified username 
             in the identity identifier space contract.
@@ -270,7 +285,6 @@ contract EMIS{
         identity.registerIdentity(username,msg.sender,expiryTime);
     }
 
-    // 更新aboutMe信息
     /**
      * @dev Update the information of AboutMe in the identity identifier 
             space contract of the specified username.
@@ -358,9 +372,6 @@ contract EMIS{
     }
 
 
-
-
-// 身份标识相关查询,只有username的Owner可以查看
     /**
      * @dev Query whether the username's identity identifier is in expiry date.
      * @param username The specified username.
@@ -374,7 +385,6 @@ contract EMIS{
         return identity.isActive(username);
     }
 
-    // 查询identity身份标识
     /**
      * @dev Returns the identity identifier of the specified username.
      * @param username The specified username.
