@@ -295,15 +295,6 @@ contract EMIS{
         identity.setAboutMe(username,aboutMe);
     }
 
-    /**
-     * @dev Update the information of Digest in the identity identifier 
-            space contract of the specified username.
-     * @param username The specified username.
-     * @param digest The information of the digest.
-     */
-    function updateDigest(string calldata username, string calldata digest) public authorised(username){
-        identity.setDigest(username,digest);
-    }
     
     /**
      * @dev Pays the fee to extend the use of the registered identity 
@@ -450,15 +441,7 @@ contract EMIS{
         return identity.aboutMe(username);
     }
 
-    /**
-     * @dev Returns the digest information of the specified username.
-     * @param username The specified username.
-     * @return aboutMe The information of the digest.
-     */
 
-    function getDigest(string calldata username) public view returns(string memory){
-        return identity.digest(username);
-    }
     /**
      * @dev Returns the TTL of the specified username.
      * @param username The specified username.

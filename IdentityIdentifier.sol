@@ -4,10 +4,8 @@ contract IdentityIdentifier{
     struct UserInfo{
         string identityIdentifier;
         string aboutMe;
-        string digest;
         uint256 ttl;
         uint256 registerTime;
-        string signature;
     }
 
     address owner;
@@ -142,15 +140,6 @@ contract IdentityIdentifier{
     function setAboutMe(string calldata username,string calldata _aboutMe) public OnlyEMIS active(username) {
         identityRecords[username].aboutMe = _aboutMe;
     }
-    /**
-     * @dev Update the information of Digest in the identity identifier 
-            space contract of the specified username.
-     * @param username The specified username.
-     * @param _digest The information of the digest.
-     */
-    function setDigest(string calldata username,string calldata _digest) public OnlyEMIS active(username) {
-        identityRecords[username].digest = _digest;
-    }
 
     /**
      * @dev Extend the use of the registered identity identifier of the specified username according to payTime.
@@ -273,20 +262,6 @@ contract IdentityIdentifier{
         returns(string memory)
     {
         return identityRecords[username].aboutMe;
-    }
-
-
-    /**
-     * @dev Returns the digest information of the specified username.
-     * @param username The specified username.
-     * @return aboutMe The information of the digest.
-     */
-    function digest(string calldata username) 
-        public 
-        view 
-        returns(string memory)
-    {
-        return identityRecords[username].digest;
     }
 
 
